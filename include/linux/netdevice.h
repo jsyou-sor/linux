@@ -1870,6 +1870,7 @@ struct net_device {
 #endif
 
 	possible_net_t			nd_net;
+	int __attribute__((packed)) __attribute__((aligned (16))) ikea_dummy;
 
 	/* mid-layer private */
 	union {
@@ -1878,16 +1879,16 @@ struct net_device {
 		struct pcpu_sw_netstats __percpu	*tstats;
 		struct pcpu_dstats __percpu		*dstats;
 		struct pcpu_vstats __percpu		*vstats;
-	};
+	} __attribute__((packed)) __attribute__((aligned (16)));
 
 	struct garp_port __rcu	*garp_port;
 	struct mrp_port __rcu	*mrp_port;
 
 	struct device		dev;
 	const struct attribute_group *sysfs_groups[4];
-	const struct attribute_group *sysfs_rx_queue_group;
+	const struct attribute_group __attribute__((packed)) __attribute__((aligned (16))) *sysfs_rx_queue_group;
 
-	const struct rtnl_link_ops *rtnl_link_ops;
+	const struct rtnl_link_ops __attribute__((packed)) __attribute__((aligned (16))) *rtnl_link_ops;
 
 	/* for setting kernel sock attribute on TCP connection setup */
 #define GSO_MAX_SIZE		65536

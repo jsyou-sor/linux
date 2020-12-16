@@ -651,7 +651,7 @@ struct sk_buff {
 		int			ip_defrag_offset;
 	};
 
-	struct net_device	*dev;
+	struct __attribute__((packed)) __attribute__((aligned (16))) net_device	*dev;
 
 	/*
 	 * This is the control buffer. It is free to use for every
@@ -662,26 +662,27 @@ struct sk_buff {
 	char			cb[48] __aligned(8);
 
 	unsigned long		_skb_refdst;
-	void			(*destructor)(struct sk_buff *skb);
+	void			__attribute__((packed)) __attribute__((aligned (16))) (*destructor)(struct sk_buff *skb);
 #ifdef CONFIG_XFRM
-	struct	sec_path	*sp;
+	struct	sec_path	__attribute__((packed)) __attribute__((aligned (16))) *sp;
 #endif
 #if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
-	struct nf_conntrack	*nfct;
+	struct nf_conntrack	__attribute__((packed)) __attribute__((aligned (16))) *nfct;
 #endif
 #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
-	struct nf_bridge_info	*nf_bridge;
+	struct nf_bridge_info	__attribute__((packed)) __attribute__((aligned (16))) *nf_bridge;
 #endif
-	unsigned int		len,
+	unsigned int		__attribute__((packed)) __attribute__((aligned (16))) len,
 				data_len;
-	__u16			mac_len,
+	__u16			__attribute__((packed)) __attribute__((aligned (16))) mac_len,
 				hdr_len;
 
 	/* Following fields are _not_ copied in __copy_skb_header()
 	 * Note that queue_mapping is here mostly to fill a hole.
 	 */
+	//kmemcheck_bitfield_begin(flags1) __attribute__((packed)) __attribute__((aligned (16)));
+	__u16			__attribute__((packed)) __attribute__((aligned (16))) queue_mapping;
 	kmemcheck_bitfield_begin(flags1);
-	__u16			queue_mapping;
 
 /* if you move cloned around you also must adapt those constants */
 #ifdef __BIG_ENDIAN_BITFIELD
@@ -691,8 +692,10 @@ struct sk_buff {
 #endif
 #define CLONED_OFFSET()		offsetof(struct sk_buff, __cloned_offset)
 
+	//__u8			__attribute__((packed)) __attribute__((aligned (16))) __cloned_offset[0];
 	__u8			__cloned_offset[0];
-	__u8			cloned:1,
+	int				__attribute__((packed)) __attribute__((aligned (16))) ikea_dummy1;
+	__u8			__attribute__((packed)) __attribute__((aligned (16))) cloned:1,
 				nohdr:1,
 				fclone:2,
 				peeked:1,
@@ -720,9 +723,9 @@ struct sk_buff {
 	__u8			pkt_type:3;
 	__u8			ignore_df:1;
 	__u8			nfctinfo:3;
-	__u8			nf_trace:1;
+	__u8			__attribute__((packed)) __attribute__((aligned (16))) nf_trace:1;
 
-	__u8			ip_summed:2;
+	__u8			__attribute__((packed)) __attribute__((aligned (16))) ip_summed:2;
 	__u8			ooo_okay:1;
 	__u8			l4_hash:1;
 	__u8			sw_hash:1;
@@ -743,16 +746,16 @@ struct sk_buff {
 	__u8			ipvs_property:1;
 
 	__u8			inner_protocol_type:1;
-	__u8			remcsum_offload:1;
+	__u8			__attribute__((packed)) __attribute__((aligned (16))) remcsum_offload:1;
 #ifdef CONFIG_NET_SWITCHDEV
-	__u8			offload_fwd_mark:1;
+	__u8			__attribute__((packed)) __attribute__((aligned (16))) offload_fwd_mark:1;
 #endif
 	/* 2, 4 or 5 bit hole */
 
 #ifdef CONFIG_NET_SCHED
-	__u16			tc_index;	/* traffic control index */
+	__u16			__attribute__((packed)) __attribute__((aligned (16))) tc_index;	/* traffic control index */
 #ifdef CONFIG_NET_CLS_ACT
-	__u16			tc_verd;	/* traffic control verdict */
+	__u16			__attribute__((packed)) __attribute__((aligned (16))) tc_verd;	/* traffic control verdict */
 #endif
 #endif
 
@@ -762,7 +765,7 @@ struct sk_buff {
 			__u16	csum_start;
 			__u16	csum_offset;
 		};
-	};
+	} __attribute__((packed)) __attribute__((aligned (16)));
 	__u32			priority;
 	int			skb_iif;
 	__u32			hash;
@@ -798,15 +801,15 @@ struct sk_buff {
 	__u16			mac_header;
 
 	/* private: */
-	__u32			headers_end[0];
+	__u32			__attribute__((packed)) __attribute__((aligned (16))) headers_end[0];
 	/* public: */
 
 	/* These elements must be at the end, see alloc_skb() for details.  */
-	sk_buff_data_t		tail;
-	sk_buff_data_t		end;
-	unsigned char		*head,
+	sk_buff_data_t		__attribute__((packed)) __attribute__((aligned (16))) tail;
+	sk_buff_data_t		__attribute__((packed)) __attribute__((aligned (16))) end;
+	unsigned char		__attribute__((packed)) __attribute__((aligned (16))) *head,
 				*data;
-	unsigned int		truesize;
+	unsigned int		__attribute__((packed)) __attribute__((aligned (16))) truesize;
 	atomic_t		users;
 };
 
