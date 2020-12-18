@@ -148,6 +148,9 @@ static void __iomem *network_interface_setup(struct platform_device *pdev)
 	void __iomem *PREG_ETH_REG3 = NULL;
 	void __iomem *PREG_ETH_REG4 = NULL;
 
+	// IKEA Debugging
+	printk("[IKEA]\tDebugging @dwmac-meson.c\n");
+
 	/*map reg0 and reg 1 addr.*/
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	if (!res) {

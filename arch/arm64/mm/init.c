@@ -404,6 +404,9 @@ static void __init free_unused_memmap(void)
  */
 void __init mem_init(void)
 {
+	/* IKEA debugging */
+	unsigned long tcr_el1;
+
 	if (swiotlb_force == SWIOTLB_FORCE ||
 	    max_pfn > (arm64_dma_phys_limit >> PAGE_SHIFT))
 		swiotlb_init(1);
@@ -487,6 +490,11 @@ void __init mem_init(void)
 		 */
 		sysctl_overcommit_memory = OVERCOMMIT_ALWAYS;
 	}
+
+	/* IKEA debugging for TXSZ */
+	//unsigned long tcr_el1;
+	tcr_el1 = read_sysreg(tcr_el1);
+	printk("[IKEA]\ttcr_el1: 0x%lx\n", tcr_el1);
 }
 
 void free_initmem(void)

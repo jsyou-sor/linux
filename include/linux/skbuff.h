@@ -695,7 +695,8 @@ struct sk_buff {
 	//__u8			__attribute__((packed)) __attribute__((aligned (16))) __cloned_offset[0];
 	__u8			__cloned_offset[0];
 	int				__attribute__((packed)) __attribute__((aligned (16))) ikea_dummy1;
-	__u8			__attribute__((packed)) __attribute__((aligned (16))) cloned:1,
+	//__u8			__attribute__((packed)) __attribute__((aligned (16))) cloned:1,
+	__u8	cloned:1,
 				nohdr:1,
 				fclone:2,
 				peeked:1,
@@ -723,9 +724,10 @@ struct sk_buff {
 	__u8			pkt_type:3;
 	__u8			ignore_df:1;
 	__u8			nfctinfo:3;
-	__u8			__attribute__((packed)) __attribute__((aligned (16))) nf_trace:1;
-
-	__u8			__attribute__((packed)) __attribute__((aligned (16))) ip_summed:2;
+	//__u8			__attribute__((packed)) __attribute__((aligned (16))) nf_trace:1;
+	__u8			nf_trace:1;
+	//__u8			__attribute__((packed)) __attribute__((aligned (16))) ip_summed:2;
+	__u8			ip_summed:2;
 	__u8			ooo_okay:1;
 	__u8			l4_hash:1;
 	__u8			sw_hash:1;
@@ -746,9 +748,11 @@ struct sk_buff {
 	__u8			ipvs_property:1;
 
 	__u8			inner_protocol_type:1;
-	__u8			__attribute__((packed)) __attribute__((aligned (16))) remcsum_offload:1;
+	//__u8			__attribute__((packed)) __attribute__((aligned (16))) remcsum_offload:1;
+	__u8			remcsum_offload:1;
 #ifdef CONFIG_NET_SWITCHDEV
-	__u8			__attribute__((packed)) __attribute__((aligned (16))) offload_fwd_mark:1;
+	//__u8			__attribute__((packed)) __attribute__((aligned (16))) offload_fwd_mark:1;
+	__u8			offload_fwd_mark:1;
 #endif
 	/* 2, 4 or 5 bit hole */
 

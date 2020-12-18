@@ -39,6 +39,8 @@ static void dwmac100_core_init(struct mac_device_info *hw, int mtu)
 
 	writel((value | MAC_CORE_INIT), ioaddr + MAC_CONTROL);
 
+	printk("[IKEA]\tDebugging @dwmac100_core.c\n");
+
 #ifdef STMMAC_VLAN_TAG_USED
 	writel(ETH_P_8021Q, ioaddr + MAC_VLAN1);
 #endif

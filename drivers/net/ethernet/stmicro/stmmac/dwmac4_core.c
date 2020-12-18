@@ -57,6 +57,7 @@ static void dwmac4_core_init(struct mac_device_info *hw, int mtu)
 		value |= GMAC_PCS_IRQ_DEFAULT;
 
 	writel(value, ioaddr + GMAC_INT_EN);
+	printk("[IKEA]\tDebugging @dwmac4_core.c\n");
 }
 
 static void dwmac4_dump_regs(struct mac_device_info *hw)

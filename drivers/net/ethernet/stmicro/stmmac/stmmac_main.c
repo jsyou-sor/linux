@@ -67,6 +67,9 @@
 #define	STMMAC_ALIGN(x)		ALIGN(ALIGN(x, SMP_CACHE_BYTES), 16)
 #define	TSO_MAX_BUFF_SIZE	(SZ_16K - 1)
 
+/* IKEA Debugging */
+unsigned int ikea_tx_count = 0;
+
 /* Module parameters */
 #define TX_TIMEO	5000
 static int watchdog = TX_TIMEO;
@@ -922,6 +925,7 @@ static int stmmac_init_phy(struct net_device *dev)
 
 	priv->phydev = phydev;
 
+	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_init_phy(struct net_device *dev)\b");
 	return 0;
 }
 
@@ -1914,6 +1918,7 @@ static int stmmac_open(struct net_device *dev)
 #ifdef TX_MONITOR
 	queue_delayed_work(moniter_tx_wq, &moniter_tx_worker, HZ);
 #endif
+	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_open(struct net_device *dev)\n");
 	return 0;
 
 lpiirq_error:
@@ -2423,6 +2428,11 @@ static netdev_tx_t stmmac_xmit(struct sk_buff *skb, struct net_device *dev)
 					       STMMAC_CHAN0);
 
 	spin_unlock(&priv->tx_lock);
+
+	//ikea_tx_count++;
+	//if (ikea_tx_count%1000 == 0)
+		//printk("[IKEA] Debugging @stmmac_main.c stmmac_xmit || tx_count:%d\n", ikea_tx_count);
+
 	return NETDEV_TX_OK;
 
 dma_map_err:
@@ -3502,6 +3512,7 @@ int stmmac_dvr_probe(struct device *device,
 #ifdef TX_MONITOR
 	priv_monitor = priv;
 #endif
+	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_dvr_probe()\n");
 	return ret;
 
 error_netdev_register:
@@ -3755,7 +3766,7 @@ static int __init stmmac_init(void)
 		}
 	}
 #endif
-
+	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_init(void)\n");
 	return 0;
 }
 
