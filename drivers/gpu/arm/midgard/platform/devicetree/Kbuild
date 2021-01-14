@@ -18,7 +18,9 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 #
-
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-self-assign
+endif
 
 USE_GPPLL?=0
 ifdef CONFIG_AM_VIDEO

@@ -8,7 +8,8 @@
 ##########################################
 
 ifndef CONFIG_KASAN
-KBUILD_CFLAGS += -Wstack-usage=2048 -Wno-bool-operation -Wno-maybe-uninitialized
+#KBUILD_CFLAGS += -Wstack-usage=2048 -Wno-bool-operation -Wno-maybe-uninitialized
+KBUILD_CFLAGS += -Wno-maybe-uninitialized
 else
 ifeq ($(call cc-ifversion, -lt, 0500, y), y)
     $(error -----GCC VERSION TOO SMALL FOR KASAN -----)

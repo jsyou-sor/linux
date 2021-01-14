@@ -364,6 +364,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
 	plat_dat->multicast_filter_bins = 0;
 
+	printk("[IKEA]\tDebugging @dwmac-ipq806x.c\tipq806x_gmac_probe()\n");
 	err = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (err)
 		goto err_remove_config_dt;

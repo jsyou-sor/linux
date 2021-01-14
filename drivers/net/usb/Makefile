@@ -1,6 +1,9 @@
 #
 # Makefile for USB Network drivers
 #
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-self-assign
+endif
 
 obj-$(CONFIG_USB_CATC)		+= catc.o
 obj-$(CONFIG_USB_KAWETH)	+= kaweth.o

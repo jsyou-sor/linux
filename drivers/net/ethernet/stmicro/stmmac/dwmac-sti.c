@@ -367,6 +367,7 @@ static int sti_dwmac_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_remove_config_dt;
 
+	printk("[IKEA]\tDebugging @dwmac-sti.c\tsti_dwmac_probe()\n");
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)
 		goto err_dwmac_exit;

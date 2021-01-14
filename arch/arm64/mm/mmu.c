@@ -52,6 +52,8 @@ u64 idmap_t0sz = TCR_T0SZ(VA_BITS);
 u64 kimage_voffset __ro_after_init;
 EXPORT_SYMBOL(kimage_voffset);
 
+int ikea_debug = 0;
+int cnt_for_each_memblock = 0;
 /*
  * Empty_zero_page is a special page that is used for zero-initialized data
  * and COW.
@@ -281,10 +283,14 @@ static void __create_pgd_mapping(pgd_t *pgdir, phys_addr_t phys,
 	phys &= PAGE_MASK;
 	addr = virt & PAGE_MASK;
 	length = PAGE_ALIGN(size + (virt & ~PAGE_MASK));
+	
+	printk("[IKEA]\tDebugging @mmu.c\t__create_pgd_mapping()\tphys: 0x%llx, addr: 0x%lx, length: 0x%lx, size: 0x%llx\n"
+					,phys, addr, length, size);
 
 	end = addr + length;
 	do {
 		next = pgd_addr_end(addr, end);
+		printk("[IKEA]\tDebugging @mmu.c\t__create_pgd_mapping()\tnext: 0x%lx\n", next);
 		alloc_init_pud(pgd, addr, next, phys, prot, pgtable_alloc,
 			       allow_block_mappings);
 		phys += next - addr;
@@ -345,6 +351,13 @@ static void __init __map_memblock(pgd_t *pgd, phys_addr_t start, phys_addr_t end
 {
 	unsigned long kernel_start = __pa_symbol(_text);
 	unsigned long kernel_end = __pa_symbol(__init_begin);
+	/*
+	if (!ikea_debug) {
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tkernel_start: 0x%lx\n", kernel_start);
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tkernel_end: 0x%lx\n", kernel_end);
+		ikea_debug++;
+	}
+	*/
 
 	/*
 	 * Take care not to create a writable alias for the
@@ -353,10 +366,13 @@ static void __init __map_memblock(pgd_t *pgd, phys_addr_t start, phys_addr_t end
 
 	/* No overlap with the kernel text/rodata */
 	if (end < kernel_start || start >= kernel_end) {
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tphys_start: 0x%llx\n", start);
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tvirt_start: 0x%lx\n", __phys_to_virt(start));
 		__create_pgd_mapping(pgd, start, __phys_to_virt(start),
 				     end - start, PAGE_KERNEL,
 				     early_pgtable_alloc,
 				     !debug_pagealloc_enabled());
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tLinear mapping (1)\n");
 		return;
 	}
 
@@ -364,18 +380,27 @@ static void __init __map_memblock(pgd_t *pgd, phys_addr_t start, phys_addr_t end
 	 * This block overlaps the kernel text/rodata mappings.
 	 * Map the portion(s) which don't overlap.
 	 */
-	if (start < kernel_start)
+	if (start < kernel_start) {
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tphys_start: 0x%llx\n", start);
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tvirt_start: 0x%lx\n", __phys_to_virt(start));
+		printk("[IKEA]\tikea_phys_to_virt: 0x%llx\n", start + 0xffffffbd00000000);
 		__create_pgd_mapping(pgd, start,
 				     __phys_to_virt(start),
+						 //start + 0xffffffbd00000000,
 				     kernel_start - start, PAGE_KERNEL,
 				     early_pgtable_alloc,
 				     !debug_pagealloc_enabled());
-	if (kernel_end < end)
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tLinear mapping (2)\n");
+	}
+	if (kernel_end < end) {
 		__create_pgd_mapping(pgd, kernel_end,
 				     __phys_to_virt(kernel_end),
+						 //kernel_end + 0xffffffbd00000000,
 				     end - kernel_end, PAGE_KERNEL,
 				     early_pgtable_alloc,
 				     !debug_pagealloc_enabled());
+		printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tLinear mapping (3)\n");
+	}
 
 	/*
 	 * Map the linear alias of the [_text, __init_begin) interval as
@@ -384,8 +409,11 @@ static void __init __map_memblock(pgd_t *pgd, phys_addr_t start, phys_addr_t end
 	 * protects it from inadvertent modification or execution.
 	 */
 	__create_pgd_mapping(pgd, kernel_start, __phys_to_virt(kernel_start),
-			     kernel_end - kernel_start, PAGE_KERNEL_RO,
+	//__create_pgd_mapping(pgd, kernel_start,
+					 //kernel_start + 0xffffffbd00000000,
+					 kernel_end - kernel_start, PAGE_KERNEL_RO,
 			     early_pgtable_alloc, !debug_pagealloc_enabled());
+	printk("[IKEA]\tDebugging @mmu.c\t__map_memblock\tLinear mapping (4)\n");
 }
 
 static void __init map_mem(pgd_t *pgd)
@@ -397,13 +425,17 @@ static void __init map_mem(pgd_t *pgd)
 		phys_addr_t start = reg->base;
 		phys_addr_t end = start + reg->size;
 
+		printk("[IKEA]\tDebugging @mmu.c\tmap_mem()\tsize: 0x%llx\n", reg->size);
+
 		if (start >= end)
 			break;
 		if (memblock_is_nomap(reg))
 			continue;
 
 		__map_memblock(pgd, start, end);
+		cnt_for_each_memblock++; 
 	}
+	printk("[IKEA]\tDebugging @mmu.c\tmap_mem()\titeration: %d\n", cnt_for_each_memblock);
 }
 
 void mark_rodata_ro(void)
@@ -522,8 +554,12 @@ static void __init map_kernel(pgd_t *pgd)
  */
 void __init paging_init(void)
 {
+	unsigned long ttbr_el1;
 	phys_addr_t pgd_phys = early_pgtable_alloc();
 	pgd_t *pgd = pgd_set_fixmap(pgd_phys);
+
+	printk("[IKEA]\tDebugging @mmu.c\tpaging_init(void)\tpgd_phys: 0x%llx\n", pgd_phys);
+	printk("[IKEA]\tDebugging @mmu.c\tpaging_init(void)\tpgd: 0x%p\n", pgd);
 
 	map_kernel(pgd);
 	map_mem(pgd);
@@ -549,6 +585,9 @@ void __init paging_init(void)
 	 */
 	memblock_free(__pa_symbol(swapper_pg_dir) + PAGE_SIZE,
 		      SWAPPER_DIR_SIZE - PAGE_SIZE);
+
+	ttbr_el1 = read_sysreg(ttbr1_el1);
+	printk("[IKEA]\tDebugging @mmu.c\tpaging_init(void)\tttbr_el1: 0x%lx\n", ttbr_el1);
 }
 
 /*

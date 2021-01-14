@@ -1,6 +1,9 @@
 #
 # Makefile for the kernel DVB frontend device drivers.
 #
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-self-assign
+endif
 
 ccflags-y += -I$(srctree)/drivers/media/dvb-core/
 ccflags-y += -I$(srctree)/drivers/media/tuners/
@@ -115,7 +118,7 @@ obj-$(CONFIG_DVB_SI2165) += si2165.o
 obj-$(CONFIG_DVB_A8293) += a8293.o
 obj-$(CONFIG_DVB_SP2) += sp2.o
 obj-$(CONFIG_DVB_TDA10071) += tda10071.o
-obj-$(CONFIG_DVB_RTL2830) += rtl2830.o
+#obj-$(CONFIG_DVB_RTL2830) += rtl2830.o
 obj-$(CONFIG_DVB_RTL2832) += rtl2832.o
 obj-$(CONFIG_DVB_RTL2832_SDR) += rtl2832_sdr.o
 obj-$(CONFIG_DVB_M88RS2000) += m88rs2000.o

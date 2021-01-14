@@ -1,3 +1,7 @@
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-constant-conversion
+endif
+
 ath9k-y +=	beacon.o \
 		gpio.o \
 		init.o \

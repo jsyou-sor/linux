@@ -149,6 +149,8 @@ static struct delayed_work moniter_tx_worker;
  */
 static void stmmac_verify_args(void)
 {
+	printk("[IKEA]\tDebugging @stmmac_mainc\tstmamc_verify_args()\n");
+
 	if (unlikely(watchdog < 0))
 		watchdog = TX_TIMEO;
 	if (unlikely((buf_sz < DEFAULT_BUFSIZE) || (buf_sz > BUF_SIZE_16KiB)))
@@ -161,6 +163,15 @@ static void stmmac_verify_args(void)
 		pause = PAUSE_TIME;
 	if (eee_timer < 0)
 		eee_timer = STMMAC_DEFAULT_LPI_TIMER;
+
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\tphyaddr: %d\n", phyaddr);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\tbuf_sz: %d\n", buf_sz);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\ttc: %d\n", tc);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\twatchdog: %d\n", watchdog);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\tflow_ctrl: %d\n", flow_ctrl);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\tpause: %d\n", pause);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\teee_timer: %d\n", eee_timer);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_verify_args()\tchain_mode: %d\n", chain_mode);
 }
 
 /**
@@ -869,6 +880,8 @@ static int stmmac_init_phy(struct net_device *dev)
 	priv->oldlink = 0;
 	priv->speed = 0;
 	priv->oldduplex = -1;
+	
+	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_init_phy(struct net_device *dev)\b");
 
 	if (priv->plat->phy_node) {
 		phydev = of_phy_connect(dev, priv->plat->phy_node,
@@ -925,7 +938,7 @@ static int stmmac_init_phy(struct net_device *dev)
 
 	priv->phydev = phydev;
 
-	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_init_phy(struct net_device *dev)\b");
+	//printk("[IKEA]\tDebugging @stmmac_main.c stmmac_init_phy(struct net_device *dev)\b");
 	return 0;
 }
 
@@ -1144,6 +1157,8 @@ static int init_dma_desc_rings(struct net_device *dev, gfp_t flags)
 
 	if (netif_msg_hw(priv))
 		stmmac_display_rings(priv);
+	
+	stmmac_display_rings(priv);
 
 	return 0;
 err_init_rx_buffers:
@@ -1840,6 +1855,8 @@ static int stmmac_open(struct net_device *dev)
 	struct stmmac_priv *priv = netdev_priv(dev);
 	int ret;
 
+	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_open(struct net_device *dev)\n");
+
 	if (priv->hw->pcs != STMMAC_PCS_RGMII &&
 	    priv->hw->pcs != STMMAC_PCS_TBI &&
 	    priv->hw->pcs != STMMAC_PCS_RTBI) {
@@ -1918,7 +1935,7 @@ static int stmmac_open(struct net_device *dev)
 #ifdef TX_MONITOR
 	queue_delayed_work(moniter_tx_wq, &moniter_tx_worker, HZ);
 #endif
-	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_open(struct net_device *dev)\n");
+	//printk("[IKEA]\tDebugging @stmmac_main.c stmmac_open(struct net_device *dev)\n");
 	return 0;
 
 lpiirq_error:
@@ -3219,6 +3236,8 @@ static int stmmac_hw_init(struct stmmac_priv *priv)
 {
 	struct mac_device_info *mac;
 
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_hw_init(struct stmmac_priv *priv)\n");
+
 	/* Identify the MAC HW device */
 	if (priv->plat->has_gmac) {
 		priv->dev->priv_flags |= IFF_UNICAST_FLT;
@@ -3347,6 +3366,8 @@ int stmmac_dvr_probe(struct device *device,
 	struct net_device *ndev = NULL;
 	struct stmmac_priv *priv;
 
+	unsigned long ikea_tcr_el1;
+
 #ifdef TX_MONITOR
 	int result = 0;
 	moniter_tx_wq = create_singlethread_workqueue("eth_moniter_tx_wq");
@@ -3358,6 +3379,7 @@ int stmmac_dvr_probe(struct device *device,
 		pr_info("register suspend notifier failed return %d\n", result);
 	}
 #endif
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_drv_probe()\n");
 	ndev = alloc_etherdev(sizeof(struct stmmac_priv));
 	if (!ndev)
 		return -ENOMEM;
@@ -3373,6 +3395,14 @@ int stmmac_dvr_probe(struct device *device,
 	priv->plat = plat_dat;
 	priv->ioaddr = res->addr;
 	priv->dev->base_addr = (unsigned long)res->addr;
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_drv_probe()\tpriv->ioaddr : 0x%p\n", priv->ioaddr);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_drv_probe()\tpriv->dev->base_addr : 0x%lx\n", priv->dev->base_addr);
+
+	ikea_tcr_el1 = read_sysreg(tcr_el1);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_drv_probe()\ttcr_el1: 0x%lx\n", ikea_tcr_el1);
+	ikea_tcr_el1 = ikea_tcr_el1 & 0xfffffffffffeffff;
+	//write_sysreg(ikea_tcr_el1, tcr_el1);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_drv_probe()\ttcr_el1: 0x%lx\n", ikea_tcr_el1);
 
 	priv->dev->irq = res->irq;
 	priv->wol_irq = res->wol_irq;
@@ -3393,9 +3423,15 @@ int stmmac_dvr_probe(struct device *device,
 		priv->plat->phy_addr = phyaddr;
 
 	priv->stmmac_clk = devm_clk_get(priv->device, STMMAC_RESOURCE_NAME);
+	if (priv->stmmac_clk == NULL)
+		printk("[IKEA]\tReturns NULL by definition\n");
+	else
+		printk("[IKEA]\tWhy doesn't it return NULL?\n");
+	
 	if (IS_ERR(priv->stmmac_clk)) {
 		dev_warn(priv->device, "%s: warning: cannot get CSR clock\n",
 			 __func__);
+		printk("[IKEA]\tdevm_clk_get() returns NULL\n");
 		/* If failed to obtain stmmac_clk and specific clk_csr value
 		 * is NOT passed from the platform, probe fail.
 		 */
@@ -3512,7 +3548,7 @@ int stmmac_dvr_probe(struct device *device,
 #ifdef TX_MONITOR
 	priv_monitor = priv;
 #endif
-	printk("[IKEA]\tDebugging @stmmac_main.c stmmac_dvr_probe()\n");
+	//printk("[IKEA]\tDebugging @stmmac_main.c stmmac_dvr_probe()\n");
 	return ret;
 
 error_netdev_register:
@@ -3741,6 +3777,15 @@ static int __init stmmac_cmdline_opt(char *str)
 				goto err;
 		}
 	}
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\tphyaddr: %d\n", phyaddr);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\tbuf_sz: %d\n", buf_sz);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\ttc: %d\n", tc);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\twatchdog: %d\n", watchdog);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\tflow_ctrl: %d\n", flow_ctrl);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\tpause: %d\n", pause);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\teee_timer: %d\n", eee_timer);
+	printk("[IKEA]\tDebugging @stmmac_main.c\tstmmac_cmdline_opt()\tchain_mode: %d\n", chain_mode);
+	
 	return 0;
 
 err:

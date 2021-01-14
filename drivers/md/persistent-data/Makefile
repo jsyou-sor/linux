@@ -1,4 +1,5 @@
 obj-$(CONFIG_DM_PERSISTENT_DATA) += dm-persistent-data.o
+#dm-array.o
 dm-persistent-data-objs := \
 	dm-array.o \
 	dm-bitset.o \

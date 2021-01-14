@@ -1,11 +1,22 @@
+#HOSTCC=clang
+#ccflags-remove-$(CONFIG_STMMAC_ETH) += -fconserve-stack
+
 obj-$(CONFIG_STMMAC_ETH) += stmmac.o
 ccflags-$(CONFIG_DWMAC_MESON) := -Idrivers/amlogic/ethernet/phy
+#ccflags-$(CONFIG_DWMAC_MESON) := -isystem /home/jsyou/IKEA/linux/drivers/amlogic/ethernet/phy
 
 stmmac-objs:= stmmac_main.o stmmac_ethtool.o stmmac_mdio.o ring_mode.o	\
 	      chain_mode.o dwmac_lib.o dwmac1000_core.o dwmac1000_dma.o	\
 	      dwmac100_core.o dwmac100_dma.o enh_desc.o norm_desc.o	\
 	      mmc_core.o stmmac_hwtstamp.o stmmac_ptp.o dwmac4_descs.o	\
-	      dwmac4_dma.o dwmac4_lib.o dwmac4_core.o $(stmmac-y)
+				dwmac4_dma.o dwmac4_lib.o dwmac4_core.o $(stmmac-y) 
+				
+#dwmac4_dma.o dwmac4_lib.o dwmac4_core.o $(stmmac-y)
+
+#HOSTCC=clang
+#CC=clang
+#cc-name=clang
+#KBUILD_CFLAGS += -DCONFIG_AMLOGIC_ETH_PRIVE
 
 # Ordering matters. Generic driver must be last.
 obj-$(CONFIG_STMMAC_PLATFORM)	+= stmmac-platform.o

@@ -38,7 +38,7 @@ extern unsigned int external_tx_delay;
 extern void __iomem *ee_reset_base;
 #endif
 extern const struct dev_pm_ops stmmac_pltfr_pm_ops;
-
+//#endif
 static inline void *get_stmmac_bsp_priv(struct device *dev)
 {
 	struct net_device *ndev = dev_get_drvdata(dev);

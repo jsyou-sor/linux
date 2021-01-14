@@ -63,6 +63,7 @@ static int lpc18xx_dwmac_probe(struct platform_device *pdev)
 	regmap_update_bits(reg, LPC18XX_CREG_CREG6,
 			   LPC18XX_CREG_CREG6_ETHMODE_MASK, ethmode);
 
+	printk("[IKEA]\tDebugging @dwmac-lpc18xx.c\tlpc18xx_dwmac_probe()\n");
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)
 		goto err_remove_config_dt;

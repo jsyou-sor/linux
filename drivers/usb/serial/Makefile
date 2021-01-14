@@ -3,6 +3,9 @@
 #
 
 # Object file lists.
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-self-assign
+endif
 
 obj-$(CONFIG_USB_SERIAL)			+= usbserial.o
 

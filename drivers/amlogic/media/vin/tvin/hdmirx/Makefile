@@ -1,7 +1,7 @@
 #
 # Makefile for HDMI_RX.
 #
-
+KBUILD_CFLAGS += -Wno-fortify-source
 obj-$(CONFIG_AMLOGIC_MEDIA_TVIN_HDMI) += tvin_hdmirx.o
 tvin_hdmirx-objs := hdmi_rx_wrapper.o hdmi_rx_hw.o hdmi_rx_drv.o \
 		hdcp_rx_main.o hdmi_rx_eq.o \

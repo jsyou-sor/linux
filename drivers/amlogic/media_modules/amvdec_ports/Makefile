@@ -1,3 +1,4 @@
+KBUILD_CFLAGS += -Wno-typedef-redefinition
 obj-m += amvdec_ports.o
 amvdec_ports-objs += aml_vcodec_dec_drv.o
 amvdec_ports-objs += aml_vcodec_dec.o

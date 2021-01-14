@@ -1,3 +1,4 @@
+KBUILD_CFLAGS += -Wno-typedef-redefinition
 obj-y	+=	utils/
 obj-y	+=	mpeg12/
 obj-y	+=	mpeg4/

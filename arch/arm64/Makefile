@@ -55,11 +55,13 @@ ifeq ($(cc-name),clang)
 # TODO: revert when this is fixed in LLVM.
 KBUILD_CFLAGS	+= -mno-implicit-float
 else
+ifeq ($(cc-name),cc)
 KBUILD_CFLAGS	+= -mgeneral-regs-only
+endif
 endif
 KBUILD_CFLAGS	+= $(lseinstr)
 KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
-KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
+#KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
 KBUILD_CFLAGS	+= -fno-pic
 KBUILD_AFLAGS	+= $(lseinstr)
 

@@ -219,6 +219,7 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
 	res.wol_irq = pdev->irq;
 	res.irq = pdev->irq;
 
+	printk("[IKEA]\tDebugging @stmmac-pci.c\tstmmac_pci_probe()\n");
 	return stmmac_dvr_probe(&pdev->dev, plat, &res);
 }
 

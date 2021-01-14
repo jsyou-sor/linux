@@ -1,7 +1,7 @@
 #
 # AMLOGIC VE & CM.
 #
-
+KBUILD_CFLAGS += -Wno-self-assign
 obj-$(CONFIG_AMLOGIC_MEDIA_ENHANCEMENT_VECM) += am_vecm.o
 am_vecm-objs := amve.o
 am_vecm-objs += amcm.o

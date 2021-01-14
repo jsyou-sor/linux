@@ -29,6 +29,7 @@
 #include "stmmac_platform.h"
 
 #define ETHMAC_SPEED_10	BIT(1)
+#define ETHMAC_SPEED_100 BIT(1)
 
 #ifdef CONFIG_AMLOGIC_ETH_PRIVE
 /*if not g12a use genphy driver*/
@@ -113,6 +114,8 @@ static void meson6_dwmac_fix_mac_speed(void *priv, unsigned int speed)
 #endif
 }
 
+static unsigned int support_mac_wol;
+
 #ifdef CONFIG_AMLOGIC_ETH_PRIVE
 #define ETH_REG2_REVERSED BIT(28)
 #define INTERNAL_PHY_ID 0x110181
@@ -130,7 +133,7 @@ static void meson6_dwmac_fix_mac_speed(void *priv, unsigned int speed)
 /*these two store the define of wol in dts*/
 extern unsigned int support_internal_phy_wol;
 extern unsigned int support_external_phy_wol;
-static unsigned int support_mac_wol;
+//static unsigned int support_mac_wol;
 static void __iomem *network_interface_setup(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
@@ -628,6 +631,7 @@ static int meson6_dwmac_probe(struct platform_device *pdev)
 	struct stmmac_resources stmmac_res;
 	struct meson_dwmac *dwmac;
 	int ret;
+	struct resource *res;
 
 	ret = stmmac_get_platform_resources(pdev, &stmmac_res);
 	if (ret)
@@ -657,10 +661,14 @@ static int meson6_dwmac_probe(struct platform_device *pdev)
 		if (ret)
 			return ret;
 	}
+	res = NULL;
 #else
-	struct resource *res;
+	//struct resource *res;
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	dwmac->reg = devm_ioremap_resource(&pdev->dev, res);
+
+	printk("[IKEA]\tDebugging @dwmac-meson.c\tmeson6_dwmac_probe()\tdwmac->reg : 0x%p\n", dwmac->reg);
+
 	if (IS_ERR(dwmac->reg)) {
 		ret = PTR_ERR(dwmac->reg);
 		goto err_remove_config_dt;
@@ -669,6 +677,7 @@ static int meson6_dwmac_probe(struct platform_device *pdev)
 	plat_dat->bsp_priv = dwmac;
 	plat_dat->fix_mac_speed = meson6_dwmac_fix_mac_speed;
 
+	printk("[IKEA]\tDebugging @dwmac-meson.c\tmeson6_dwmac_probe()\n");
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)
 		goto err_remove_config_dt;

@@ -231,6 +231,9 @@ stmmac_probe_config_dt(struct platform_device *pdev, const char **mac)
 	/* Default to phy auto-detection */
 	plat->phy_addr = -1;
 
+	/* Get clk_csr from device tree */
+	//of_property_read_u32(np, "clk_csr", &plat->clk_csr);
+
 	/* "snps,phy-addr" is not a standard property. Mark it as deprecated
 	 * and warn of its use. Remove this when phy node support is added.
 	 */
@@ -403,8 +406,10 @@ int stmmac_get_platform_resources(struct platform_device *pdev,
 	if (stmmac_res->lpi_irq == -EPROBE_DEFER)
 		return -EPROBE_DEFER;
 
+	printk("[IKEA]\tDebugging @stmmac_platform.c\tstmmac_get_platform_resources()\n");
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	stmmac_res->addr = devm_ioremap_resource(&pdev->dev, res);
+	printk("[IKEA]\tDebugging @stmmac_platform.c\tstmmac_res->addr = 0x%p\n", stmmac_res->addr);
 
 	return PTR_ERR_OR_ZERO(stmmac_res->addr);
 }

@@ -159,7 +159,7 @@ static int sun7i_gmac_probe(struct platform_device *pdev)
 	ret = sun7i_gmac_init(pdev, plat_dat->bsp_priv);
 	if (ret)
 		goto err_remove_config_dt;
-
+	printk("[IKEA]\tDebugging @dwmac-sunxi.c\tsun7i_gmac_probe()\n");
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)
 		goto err_gmac_exit;

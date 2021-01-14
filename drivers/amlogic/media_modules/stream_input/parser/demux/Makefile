@@ -1,3 +1,4 @@
+KBUILD_CFLAGS += -Wno-non-literal-null-conversion
 obj-m	+= aml_swdmx.o
 
 ccflags-y += -I$(srctree)/drivers/media/dvb-core -I$(srctree)/drivers/gpio -I$(srctree)/include

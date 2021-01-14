@@ -192,7 +192,8 @@ early_param("mem", early_mem);
 
 void __init arm64_memblock_init(void)
 {
-	const s64 linear_region_size = -(s64)PAGE_OFFSET;
+	//const s64 linear_region_size = -(s64)PAGE_OFFSET;
+	const s64 linear_region_size = -(s64)PAGE_OFFSET_NATIVE;
 
 	/*
 	 * Ensure that the linear region takes up exactly half of the kernel
@@ -221,6 +222,8 @@ void __init arm64_memblock_init(void)
 		memblock_remove(0, memstart_addr);
 	}
 
+	printk("[IKEA]\t@mm/init.c\tmemstart_addr: 0x%llx\n", memstart_addr);
+
 	/*
 	 * Apply the memory limit if it was set. Since the kernel may be loaded
 	 * high up in memory, add back the kernel region that must be accessible
@@ -239,6 +242,9 @@ void __init arm64_memblock_init(void)
 		 */
 		u64 base = initrd_start & PAGE_MASK;
 		u64 size = PAGE_ALIGN(initrd_end) - base;
+
+		printk("[IKEA]\t@mm/init.c\tbase: 0x%llx\n", base);
+		printk("[IKEA]\t@mm/init.c\tsize: 0x%llx\n", size);
 
 		/*
 		 * We can only add back the initrd memory if we don't end up
@@ -287,8 +293,12 @@ void __init arm64_memblock_init(void)
 		memblock_reserve(initrd_start, initrd_end - initrd_start);
 
 		/* the generic initrd code expects virtual addresses */
+		printk("[IKEA]\tphys_initrd_start:\t0x%lx\n", initrd_start);
+		printk("[IKEA]\tphys_initrd_end:\t0x%lx\n", initrd_end);
 		initrd_start = __phys_to_virt(initrd_start);
 		initrd_end = __phys_to_virt(initrd_end);
+		printk("[IKEA]\tvirt_initrd_start:\t0x%lx\n", initrd_start);
+		printk("[IKEA]\tvirt_initrd_end:\t0x%lx\n", initrd_end);
 	}
 #endif
 
@@ -465,6 +475,10 @@ void __init mem_init(void)
 #undef MLK
 #undef MLM
 #undef MLK_ROUNDUP
+
+	printk("[IKEA]\tDebugging @init.c\tmem_init()\tPHYS_OFFSET: 0x%llx\n", PHYS_OFFSET);
+	printk("[IKEA]\tDebugging @init.c\tmem_init()\tmemstart_addr: 0x%llx\n", memstart_addr);
+	printk("[IKEA]\tDebugging @init.c\tmem_init()\tPAGE_OFFSET: 0x%lx\n", PAGE_OFFSET);
 
 	/*
 	 * Check boundaries twice: Some fundamental inconsistencies can be

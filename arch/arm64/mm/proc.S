@@ -458,7 +458,7 @@ ENTRY(__cpu_setup)
 1:	orr	x10, x10, #TCR_HA		// hardware Access flag update
 2:
 #endif	/* CONFIG_ARM64_HW_AFDBM */
-	and x10, x10, #0xfffffffffffcffff		// [IKEA]: set T1SZ to 24
+	// and x10, x10, #0xfffffffffffcffff		// [IKEA]: set T1SZ to 24
 	msr	tcr_el1, x10
 	ret					// return to head.S
 ENDPROC(__cpu_setup)

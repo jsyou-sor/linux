@@ -19,14 +19,17 @@ struct clk *devm_clk_get(struct device *dev, const char *id)
 	struct clk **ptr, *clk;
 
 	ptr = devres_alloc(devm_clk_release, sizeof(*ptr), GFP_KERNEL);
-	if (!ptr)
+	if (!ptr) {
+		printk("[IKEA]\tDebugging @clk-devres.c\tdevm_clk_get\tdevres_alloc() failed\n");
 		return ERR_PTR(-ENOMEM);
+	}
 
 	clk = clk_get(dev, id);
 	if (!IS_ERR(clk)) {
 		*ptr = clk;
 		devres_add(dev, ptr);
 	} else {
+		printk("[IKEA]\tDebugging @clk-devres.c\tdevm_clk_get\tclk_get() failed\n");
 		devres_free(ptr);
 	}
 

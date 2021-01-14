@@ -52,7 +52,7 @@ static int dwmac_generic_probe(struct platform_device *pdev)
 		if (ret)
 			goto err_remove_config_dt;
 	}
-
+	printk("[IKEA]\tDebugging @dwmac-generic.c\tdwmac_generic_probe()\n");
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)
 		goto err_exit;

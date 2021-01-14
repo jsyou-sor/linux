@@ -1,3 +1,4 @@
+KBUILD_CFLAGS += -Wno-self-assign
 obj-m += ci.o cimax-usb.o
 
 ci-objs = $(amlci-objs) $(cimcu-objs) $(cimax-objs)

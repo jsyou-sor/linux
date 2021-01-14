@@ -296,6 +296,7 @@ static int meson8b_dwmac_probe(struct platform_device *pdev)
 
 	plat_dat->bsp_priv = dwmac;
 
+	pr_info("[IKEA]\tDebugging @dwmac-meson8b.c meson8b_dwmac_probe(): before calling stmmac_dvr_probe\n");
 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
 	if (ret)
 		goto err_clk_disable;
@@ -307,6 +308,7 @@ err_clk_disable:
 err_remove_config_dt:
 	stmmac_remove_config_dt(pdev, plat_dat);
 
+	//printk("[IKEA]]\tDebugging @dwmac-meson8b.c meson8b_dwmac_probe\n"); 
 	return ret;
 }
 

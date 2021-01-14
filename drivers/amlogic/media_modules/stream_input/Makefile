@@ -1,3 +1,4 @@
+KBUILD_CFLAGS += -Wno-self-assign
 obj-m	+=	 stream_input.o
 
 stream_input-objs	+=	amports/amstream.o

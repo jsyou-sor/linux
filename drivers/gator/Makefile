@@ -1,3 +1,7 @@
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-expansion-to-defined
+endif
+
 ifneq ($(KERNELRELEASE),)
 
 # Uncomment the following line to enable kernel stack unwinding within gator, or update gator_backtrace.c

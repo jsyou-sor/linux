@@ -39,6 +39,10 @@
 
 #include "internal.h"
 
+int ikea_get_vm_area_caller_cnt = 0;
+#define IKEA_VMALLOC_START	UL(0xffffffd000000000)
+#define IKEA_VMALLOC_END		UL(0xffffffe000000000)
+
 struct vfree_deferred {
 	struct llist_head list;
 	struct work_struct wq;
@@ -1463,8 +1467,20 @@ struct vm_struct *get_vm_area(unsigned long size, unsigned long flags)
 struct vm_struct *get_vm_area_caller(unsigned long size, unsigned long flags,
 				const void *caller)
 {
-	return __get_vm_area_node(size, 1, flags, VMALLOC_START, VMALLOC_END,
-				  NUMA_NO_NODE, GFP_KERNEL, caller);
+	struct vm_struct *ikea_vm_struct;
+	ikea_get_vm_area_caller_cnt++;
+
+	if (flags & VM_IOREMAP) {
+		ikea_vm_struct = __get_vm_area_node(size, 1, flags, IKEA_VMALLOC_START,
+											IKEA_VMALLOC_END, NUMA_NO_NODE, GFP_KERNEL, caller);
+		if (!ikea_vm_struct)
+			printk("[IKEA]\tDebugging @vmalloc.c\tget_vm_area_caller()\tikea ioremap failed\n");
+
+		return ikea_vm_struct;
+	}
+	else
+		return __get_vm_area_node(size, 1, flags, VMALLOC_START, VMALLOC_END,
+						NUMA_NO_NODE, GFP_KERNEL, caller);
 }
 
 /**
@@ -1626,6 +1642,11 @@ void *vmap(struct page **pages, unsigned int count,
 		return NULL;
 
 	size = (unsigned long)count << PAGE_SHIFT;
+
+	//printk("[IKEA]\tDebugging @vmalloc.c\tvmap()\tsize: 0x%lx\n", size);
+	//printk("[IKEA]\tDebugging @vmalloc.c\tvmap()\tVMALLOC_START: 0x%lx\n", VMALLOC_START);
+	//printk("[IKEA]\tDebugging @vmalloc.c\tvmap()\tVMALLOC_END: 0x%lx\n", VMALLOC_END);
+
 	area = get_vm_area_caller(size, flags, __builtin_return_address(0));
 	if (!area)
 		return NULL;

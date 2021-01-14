@@ -1,4 +1,9 @@
 SHELL := /bin/bash
+
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -Wno-self-assign
+endif
+
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
 EXTRA_CFLAGS += -O1
 

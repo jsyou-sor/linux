@@ -303,8 +303,18 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = gcc
 HOSTCXX      = g++
+ifeq ($(cc-name),cc)
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
+endif
+ifeq ($(cc-name),gcc)
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
+endif
+ifeq ($(CC),clang)
+HOSTCFLAGS   := -Wmissing-prototypes -Wstrict-prototypes -O0 -fomit-frame-pointer -std=gnu89
+HOSTCXXFLAGS = -O0
+else
 HOSTCXXFLAGS = -O2
+endif
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -660,7 +670,9 @@ ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
+ifeq ($(cc-name),cc)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
+endif
 KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
@@ -722,11 +734,17 @@ endif
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
 else
+ifeq ($(CC),clang)
+KBUILD_CFLAGS += -O0
+else
 KBUILD_CFLAGS   += -O2
+endif
 endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
+ifeq ($(cc-name), cc)
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
+endif
 KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
 
 # check for 'asm goto'
@@ -748,7 +766,7 @@ KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
 endif
 
 ifneq ($(CONFIG_FRAME_WARN),0)
-KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
+#KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
 endif
 
 # This selects the stack protector compiler flag. Testing it is delayed
@@ -774,9 +792,12 @@ endif
 KBUILD_CFLAGS += $(stackp-flag)
 
 ifeq ($(cc-name),clang)
+#KBUILD_CFLAGS += -Wno-unknown-warning-option
 KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+KBUILD_CFLAGS += $(call cc-disable-warning, unknown-warning-option)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+# KBUILD_CFLAGS += $(call cc-disable-warning, -fmerge-constants)
 # Quiet clang warning: comparison of unsigned expression < 0 is always false
 KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
 # CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
@@ -784,11 +805,21 @@ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
 # See modpost pattern 2
 KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
 KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
+KBUILD_CFLAGS += -Wno-logical-not-parentheses -Wno-enum-conversion
+KBUILD_CFLAGS += -Wno-ignored-attributes -Wno-parentheses-equality -Wno-pointer-bool-conversion
+KBUILD_CFLAGS += -Wno-unneeded-internal-declaration
 else
 
 # These warnings generated too much noise in a regular build.
 # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+
+#ifeq ($(cc-name),gcc)
+#KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+#endif
+ifneq ($(cc-name),clang)
+KBUILD_CFLAGS += -Wno-unused-but-set-variable
+endif
+
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
@@ -805,7 +836,9 @@ KBUILD_CFLAGS	+= -fomit-frame-pointer
 endif
 endif
 
+ifeq ($(cc-name),cc)
 KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
+endif
 
 ifdef CONFIG_DEBUG_INFO
 ifdef CONFIG_DEBUG_INFO_SPLIT
@@ -869,7 +902,9 @@ KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
 KBUILD_CFLAGS += $(call cc-disable-warning, restrict)
 
 # Enabled with W=2, disabled by default as noisy
+ifneq ($(cc-name),clang)
 KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+endif
 
 # disable invalid "can't wrap" optimizations for signed / pointers
 KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
@@ -881,13 +916,17 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-merge-all-constants)
 
 # for gcc -fno-merge-all-constants disables everything, but it is fine
 # to have actual conforming behavior enabled.
+ifeq ($(cc-name),cc)
 KBUILD_CFLAGS	+= $(call cc-option,-fmerge-constants)
+endif
 
 # Make sure -fstack-check isn't enabled (like gentoo apparently did)
 KBUILD_CFLAGS  += $(call cc-option,-fno-stack-check,)
 
 # conserve stack if available
+ifeq ($(cc-name), cc)
 KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
+endif
 
 # disallow errors like 'EXPORT_GPL(foo);' with missing header
 KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
@@ -902,7 +941,9 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
 KBUILD_CFLAGS   += $(call cc-option,-Werror=incompatible-pointer-types)
 
 # Require designated initializers for all marked structures
+ifeq ($(cc-name),cc)
 KBUILD_CFLAGS   += $(call cc-option,-Werror=designated-init)
+endif
 
 # change __FILE__ to the relative path from the srctree
 KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
